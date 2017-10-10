@@ -1,0 +1,8 @@
+
+git clone (https link z repozytorium) - kopiowanie repozytorium na pc
+git pull - pobiera zmiany (trzeba byæ w œcie¿ce gdzie ma wprowadziæ zmiany
+git status 
+git reset - resetuje pliki do commitowania (dodane git add)
+git add - dodaje pliki do commitowania
+git commit -m " tekst commita " - dodaje plik i komentarz
+git push - dodaj commity do github
