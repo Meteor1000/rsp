@@ -1,8 +1,17 @@
-
+GIT ------------------------------------------------------------------------
 git clone (https link z repozytorium) - kopiowanie repozytorium na pc
-git pull - pobiera zmiany (trzeba byæ w œcie¿ce gdzie ma wprowadziæ zmiany
+git pull ; pobiera zmiany (trzeba byæ w œcie¿ce gdzie ma wprowadziæ zmiany
 git status 
-git reset - resetuje pliki do commitowania (dodane git add)
-git add - dodaje pliki do commitowania
+git reset ; resetuje pliki do commitowania (dodane git add)
+git add xxx; dodaje pliki do commitowania xxx
 git commit -m " tekst commita " - dodaje plik i komentarz
-git push - dodaj commity do github
+git push ; dodaj commity do github
+git branch nazwa ; tworzy ga³¹Ÿ nazwa
+git checkout nazwa ; zmienia ga³¹Ÿ na nazwa
+git log -1 ; wyswietla ostatni commit (liczba okresla lp od konca)
+
+BASH -----------------------------------------------------------------------
+
+cd x ; wejscie do folderu/dysku x
+touch x ; tworzy plik o nazwie x
+ls -ll ; wyswietla liste plikow z uprawnieniami do nich
