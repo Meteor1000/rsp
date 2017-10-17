@@ -1,0 +1,457 @@
+= Labolatorium programowania: Technologie internetowe
+:toc:
+:toclevels: 4
+
+== `Java`
+
+=== O języku `Java`
+
+* Kompilowalny
+* Obiektowy
+* Statycznie typowany
+* Składnia na bazie `C/C++`. Usunięto "problematyczne" konstrukcje.
+* Przeności (czasami są z tym problemy).
+
+==== Ewolucja języka `Java`
+
+* Wersja 7 wprowadza wiele nowych elementów:
+** `nio` - Nowe `API` do obsługi plików
+** `Project COIN` - Wprowadzenie nowych konstrukcji językowych ułatwiających codzienne życie (`sugar syntax`):
+*** Możliwość wykonania instrukcji `switch` na wartości zmiennej typu `String`
+*** Podkreślenia w liczbach zwiększające czytelność (`10000000` -> `10_000_000`)
+*** `try-with-resources` - Automatyczne zamykanie strumieni
++
+`Java 6`:
++
+[source,java]
+----
+FileInputStream stream;
+
+try {
+    /**
+     * 1. Tu może zostać wyrzucony IOException.
+     * Jeżeli tak będzie, zmienna stream nie
+     * będzie miała wartości.
+     */
+    stream = new FileInputStream(file);
+
+    /**
+     * 2. Tutaj również może zostać
+     * wyrzucony IOException
+     */
+    readStream(stream);
+} catch (IOException ex) {
+    // ...
+} finally {
+    /**
+     * Ad. 1 - Trzeba sprawdzić, czy nie jest null
+     * ponieważ może nie mieć wartości
+     */
+    if (stream != null) {
+        try {
+            stream.close();
+        } catch (IOException ex) {
+            // Ignore
+        }
+    }
+}
+----
++
+`Java 7`:
++
+[source,java]
+----
+/**
+ * Zamykanie strumienia odbywa się automatycznie, jeżeli
+ * umieszczony w try (...)
+ */
+try (FileInputStream stream = new FileInputStream(file);) {
+    readStream(stream);
+} catch (IOException ex) {
+    // ...
+}
+----
+*** `Diamond operator` - Brak potrzeby definiowania typu generycznego dwa razy:
++
+`Java 6`:
++
+[source,java]
+----
+Set<String> set = new HashSet<String>();
+----
++
+`Java 7`:
++
+[source,java]
+----
+Set<String> set = new HashSet<>();
+----
+*** `multi-catch` - Możliwość obsługi wielu wyjątków jedną instrukcją `catch`:
++
+`Java 6`:
++
+[source,java]
+----
+Car car = new Car();
+
+try {
+    car.startEngine();
+} catch (NoFuelException ex) {
+    System.out.println("Engine could not be started!");
+    System.out.println(ex.getMessage());
+} catch (EngineDamagedException ex) {
+    System.out.println("Engine could not be started!");
+    System.out.println(ex.getMessage());
+} catch (EngineStartupFailureException ex) {
+    System.out.println("Engine could not be started!");
+    System.out.println(ex.getMessage());
+}
+----
++
+`Java 7`:
++
+[source,java]
+----
+Car car = new Car();
+
+try {
+    car.startEngine();
+} catch (NoFuelException | EngineDamagedException | EngineStartupFailureException ex) {
+    System.out.println("Engine could not be started!");
+    System.out.println(ex.getMessage());
+}
+----
+*** `fork-join` - Framework do obsługi wielowątkowości
+* Wersja 8 (**aktualna**) wprowadza nowe elementy:
+** Zalążek programowania funkcyjnego (wyrażenia lambda). Przykład:
++
+`Java 7`:
++
+[source,java]
+----
+public List<String> selectNamesWithStartingLetter(List<String> names, Character letter)  {
+    List<String> selectedNames = new LinkedList<>();
+
+    for (String name : names) {
+        if (name.startsWith(letter)) {
+            selectedNames.add(name);
+        }
+    }
+
+    return selectedNames;
+}
+----
++
+`Java 8`:
++
+[source,java]
+----
+public List<String> selectNamesWithStartingLetter(List<String> names, Character letter)  {
+    List<String> selectedNames = names.stream()
+        .filter(name -> name.startsWith(letter)) // Wyrażenie lambda
+        .collect(toList());
+
+    return selectedNames;
+}
+----
+** Nowe `API` do obsługi czasu
+** `JavaFX 2.0`
+* Wersja 9 (premiera w 2017 roku)
+** Modularyzacja `JDK`
+
+==== Podstawowe pojęcia
+
+* `JVM` - `Java Virtual Machine` - Wirtualna maszyna `Java`. Pozwala na uruchomienie skompilowanego kodu `Java` (`bytecode`).
+* `JRE` - `Java Runtime Environment` - Środowisko `Java`. Zawiera implementację maszyny wirtualnej (zgodnej z systemem operacyjnym).
+* `JDK` - `Java Development Kit` - Środowisko programistyczne. Zawiera `JRE` oraz dodatkowe biblioteki i aplikacje umożliwiające pisanie i kompilację aplikacji. Pakiet `JDK` (razem z `JRE`) można pobrać z:
+** http://openjdk.java.net/ (`Linux`)
+** `JDK8` - http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+** `JDK9` - http://www.oracle.com/technetwork/java/javase/downloads/jdk9-downloads-3848520.html
+
+==== Schemat działania
+
+. Pisanie kodu i kompilacja
++
+image::assets/images/diagrams/java-source-to-bytecode-compilation.png[]
+
+. Uruchamianie skompilowanego kodu
++
+image::assets/images/diagrams/java-jvm-runs-bytecode.png[]
+
+. Wykorzystanie `JVM` w innych językach
++
+Jest wiele języków, które wykorzystują `JVM` oraz wyżej opisany model.
++
+image::assets/images/diagrams/java-multiple-languages.png[]
+
+==== Pierwszy prosty program
+
+Każda aplikacja ma pewien punkt startowy - w przypadku aplikacji `Java` jest nim metoda `public static void main(String[] args)`.
+
+. Utworzyć plik `MyClass.java` z następującą treścią:
++
+[source,java]
+----
+public class MyClass {
+    public static void main(String[] args) {
+        System.out.println("Hello world");
+    }
+}
+----
+. Otworzyć wiersz poleceń i przejść do katalogu, w którym plik `MyClass.java` został zapisany, np:
++
+----
+$ cd C:\projects\2017-10-16\01
+----
+. Wydać polecenie kompilacji:
++
+----
+$ javac MyClass.java
+----
++
+Po zakończeniu zostanie utworzony nowy plik `MyClass.class`. Zawiera on `bytecode` (skompilowany kod) klasy `MyClass`
+. Będąc w tym samym katalogu wydać polecenie uruchomienia:
++
+----
+$ java MyClass
+----
+
+=== Środowisko
+
+Zamiast ręcznie kompilować pliki, linkować biblioteki, itd. wykorzystamy do tego `IDE` (_Integrated Development Environment`).
+
+Na zajęciach będziemy korzystali z `IntelliJ IDEA`. Pakiet można pobrać tutaj (wersja darmowa - `Community`):
+
+* https://www.jetbrains.com/idea/download/#section=windows
+
+TIP: Rejestrując się na stronie https://account.jetbrains.com/login używając uczelnianego adresu e-mail (kończącego się na `.*.kul.pl`) otrzymamy darmową, roczną licencję do użytku niekomenrcyjnego na wszystkie produkty firmy `JetBrains`.
+
+TIP: Równie dobrze można korzystać z `NetBeans`, jednak polecam wypróbowanie `IntelliJ`.
+
+=== Składnia języka
+
+==== Typy proste
+
+W języku `Java` zdefiniowanych jest osiem typów prostych.
+
+===== Typy całkowitoliczbowe
+
+* Zawsze reprezentują liczby całkowite ze znakiem (w odróżnieniu od `C/C++`, gdzie można było używać `int` oraz `unsigned int`)
+* Podlegają mechanizmowi autoboxing, czyli automatycznego opakowywania w obiekt:
++
+[source,java]
+----
+// Typ prosty. Na zmiennej number nie można wywołać żadnej metody.
+int number = 0;
+
+// Typ prosty zostaje przypisany do złożonego - int do Integer.
+// Można to zrobić dzięki autoboxing.
+Integer o1 = number;
+
+// Typ prosty zostaje przypisany jako wartość zmiennej typu Integer
+Integer o2 = 0;
+----
+
+.Szczegóły poszczególnych typów
+[cols="1,1,4"]
+|===
+| Nazwa | Rozmiar | Przedział wartości
+
+| `long`	| `64` | `[-9 223 372 036 854 775 808, 9 223 372 036 954 775 807]`
+| `int`		| `32` | `[-2 147 483 648, 2 147 483 647]`
+| `short`	| `16` | `[-32 768, 32 767]`
+| `byte`	| `8` | `[-128, 127]`
+|===
+
+===== Typy zmiennoprzecinkowe
+
+* Reprezentują liczby z ułamkami
+* Zawsze posiadają znak (`+` bądź `-`)
+* Nigdy nie powinno używać się tych typów do rachunków finansowych z powodu sposobu reprezentowania liczb zmienno przecinkowych (w takim przypadku należy używać `BigDecimal`)
++
+TIP: Jaki będzie wynik `res == 0.2` - `true` czy `false` ?
++
+[source,java]
+----
+public class Main {
+    public static void main(String[] args) {
+        double val1 = 0.3;
+        double val2 = 0.1;
+        double res = val1 - val2;
+
+        System.out.println("val1 = " + val1);
+        System.out.println("val2 = " + val2);
+        System.out.println("res = val1 - val2 = " + res);
+        System.out.println("\nres == 0.2 ? " + (res == 0.2));
+    }
+}
+----
++
+[source,java]
+----
+System.out.println(1.03 - .42);	// Program wypisze 0.6100000000000001
+----
+* Również podlegają mechanizmowi autoboxingu
+
+.Szczegóły poszczególnych typów
+[cols="1,1,4"]
+|===
+| Nazwa | Rozmiar | Przedział wartości
+
+| `double`	| `64` | `[-4.9e-324, 1.8e-308]`
+| `float`	| `32` | `[-1.4e-045, 3.4e+038]`
+|===
+
+===== Typy znakowe
+
+* Reprezentuje pojedynczy znak, na przykład literkę bądź cyfrę - `char`
+* Podlega mechanizmowi autoboxingu
+* W `C/C++` `char` reprezentuje 8 bitowy typ całkowitoliczbowy. W `Java` do reprezentacji znaków wykorzystywany jest `Unicode`, zatem `char` 16-bitową wartością, bez ujemnych wartości
++
+[source,java]
+----
+char character = 10;	// 10 = a
+
+System.out.println(character);	// Wypisze "a"
+----
+
+===== Typy logiczne
+
+* Reprezentuje wartość logiczną - prawdę bądź fałsz - `boolean`
+
+==== Instrukcje sterujące
+
+===== Instrukcja `if`
+
+[source,java]
+----
+if (warunek)
+	instrukcja;
+----
+
+[source,java]
+----
+if (warunek) {
+	instrukcja1;
+	instrukcja2;
+	// ...
+}
+----
+
+[source,java]
+----
+if (warunek)
+	instrukcja;
+else
+	instrukcja;
+----
+
+[source,java]
+----
+if (warunek1) {
+	instrukcja1;
+} else if (warunek2) {
+	instrukcja2;
+} else if (warunek3) {
+	instrukcja3;
+} else {
+	instrukcja4;
+}
+----
+
+===== Pętla `for`
+
+[source,java]
+----
+for (inicjalizacja; warunek; iteracja)
+	instrukcja;
+----
+
+[source,java]
+----
+for (int i = 0; i < 10; i++) {
+	System.out.println(i);
+}
+----
+
+[source,java]
+----
+// Nieskończona pętla
+for (;;) {
+	// ...
+}
+----
+
+===== Pętla `for-each`
+
+Pętla umożliwiająca iterację po kolekcjach:
+
+[source,java]
+----
+for (zmienna : kolekcja)
+	instrukcja;
+----
+
+[source,java]
+----
+List<String> names = Arrays.asList("Joe", "Joel", "Jeremy");
+
+for (String name : names) {
+	System.out.println(name);
+}
+----
+
+===== Pętla `while`
+
+Pętla, która będzie wykonywała `instrukcja` **dopóki** `warunek` będzie fałszywy.
+
+[source,java]
+----
+while (warunek)
+	instrukcja;
+----
+
+[source,java]
+----
+int i = 10;
+
+while (i > 0) {
+	System.out.println("Zmniejszam wartość i");
+	i--;
+}
+----
+
+===== Pętla `do-while`
+
+Podobna do `while`, jednak mamy pewność, że wykona się chociaż raz. Należy pamiętać, że na końcu `while` jest **średnik**.
+
+[source,java]
+----
+do {
+	System.out.println("Hello!");
+} while (false);
+----
+
+===== Przerywanie pętli
+
+Wykonywanie każdej pętli (bez względu na rodzaj) może zostać przerwane za pomocą instrukcji `break`
+
+[source,java]
+----
+boolean hasIncorrectValues = false;
+
+List<Integer> numbers = Arrays.asList(1, 10, 25, 31, -2, 5);
+
+for (Integer number : numbers) {
+	if (number < 0) {
+		hasIncorrectValues = true;
+
+		break; // Przerwanie wykonywania pętli for
+	}
+}
+----
+
+==== Zadania
+
+> Na dzisiaj brak
+> https://try.github.io/levels/1/challenges/1
